@@ -1,0 +1,137 @@
+msbuild 建置 與 執行IIS Express
+
+● Visual Studio 安裝位置
+D:\Microsoft Visual Studio\2017\Professional\
+
+● Visual Studio 版本
+C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\v10.0
+
+● 程式方案位置
+D:\git_demo\WebMVCLI\WebMVCLI.sln
+  (D:\git_demo\WebMVCLI\WebMVCLI\WebMVCLI.csproj)
+
+● Build Log位置及檔名
+D:\\outputBuild\\WebMVCLI.log
+
+● Build 輸出位置
+D:\\outputBuild\\WebMVCLI
+
+● Build 發佈位置
+D:\outputBuild\WebMVCLI\_PublishedWebsites
+
+
+一、 msbuild 建置 + 發佈
+  cmd 執行
+  ● 執行 msbuild 語法需移至此目錄 (MSBuild 現已安裝在每個 Visual Studio 版本底下的資料夾中)
+    > d:
+    > cd Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin
+  ● msbuild
+    > msbuild D:\git_demo\WebMVCLI\WebMVCLI.sln /p:VisualStudioVersion=10.0;outdir="D:\\outputBuild\\WebMVCLI" /fileLogger /fileLoggerParameters:LogFile="D:\\outputBuild\\WebMVCLI.log";Verbosity=diagnostic;Encoding=UTF-8 /m
+	----------------------------------------
+	參數說明：
+	[程式方案位置]  D:\git_demo\WebMVCLI\WebMVCLI.sln
+	
+	[VisualStudioVersion] /p:VisualStudioVersion=10.0
+				問題=>
+					建置失敗。
+					D:\Microsoft Visual Studio\2017\Professional\MSBuild\Microsoft\NuGet\15.0\Microsoft.NuGet.targets(186,5): 
+					error : Your project does not reference ".NETFramework,Version=v4.6.1" framework. Add a reference to 
+					".NETFramework,Version=v4.6.1" in the "TargetFrameworks" property of your project file and then re-run NuGet restore. 
+					[D:\git_demo\WebMVCLI\WebMVCLI\WebMVCLI.csproj]
+
+				參考：https://dotblogs.com.tw/franma/2013/12/16/134637
+				查詢出版本=> C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\v10.0
+
+	[Build輸出位置] /p:outdir="D:\\outputBuild\\WebMVCLI"
+	
+	[Build Log]     /fileLogger
+					/fileLoggerParameters:LogFile="D:\\outputBuild\\WebMVCLI.log";Verbosity=diagnostic;Encoding=UTF-8
+	
+	[在此解決方案中一次建置一個專案。若要啟用平行建置，請新增"/m"參數。]
+              	    /m
+					
+	[Build Debug/Release]
+					/p:Configuration=Debug|Release
+					/p:Configuration=Debug /p:DeployOnBuild=true
+	---------------------------------------
+	
+  
+二、 執行 IIS Express
+  ● 設定站台資訊
+	(1) applicationhost.config 檔案位置
+		參考：https://stackoverflow.com/questions/28701647/applicationhost-config-file-path-in-iis-7-7-5-8-8-5-and-iis-10
+		------------------------------------------
+		For the "big" IIS versions since IIS 7, the location is always the same:
+		%windir%\System32\inetsrv\config\applicationHost.config
+	
+		For IIS Express there is one per user, the default location is:
+		%USERPROFILE%\Documents\IISExpress\config\applicationhost.config
+		------------------------------------------
+	
+	(2) 編輯檔案[C:\Users\S00691\Documents\IISExpress\config\applicationhost.config] 
+		增加 (<site name="WebMVCLI" id="2" serverAutoStart="true"> ... </site>)
+		--------------------------------
+        <sites>
+            <site name="WebSite1" id="1" serverAutoStart="true">
+                <application path="/">
+                    <virtualDirectory path="/" physicalPath="%IIS_SITES_HOME%\WebSite1" />
+                </application>
+                <bindings>
+                    <binding protocol="http" bindingInformation=":8080:localhost" />
+                </bindings>
+            </site>
+            <site name="WebMVCLI" id="2" serverAutoStart="true">
+                <application path="/">
+                    <virtualDirectory path="/" physicalPath="D:\outputBuild\WebMVCLI\_PublishedWebsites\WebMVCLI" />
+                </application>
+                <bindings>
+                    <binding protocol="http" bindingInformation=":51185:localhost" />
+                </bindings>
+            </site>
+            <siteDefaults>
+                <logFile logFormat="W3C" directory="%IIS_USER_HOME%\Logs" />
+                <traceFailedRequestsLogging directory="%IIS_USER_HOME%\TraceLogFiles" enabled="true" maxLogFileSizeKB="1024" />
+            </siteDefaults>
+            <applicationDefaults applicationPool="Clr4IntegratedAppPool" />
+            <virtualDirectoryDefaults allowSubDirConfig="true" />
+        </sites>
+		--------------------------------
+
+  ● 執行 IIS Express
+	cmd 執行
+	(1)移至目錄[ C:\Program Files (x86)\IIS Express] 下執行以下語法
+		> cd C:\Program Files (x86)\IIS Express
+		
+	(2) 執行iisexpress /site:站台設定名稱可用[>appcmd.exe list site]查詢
+		>iisexpress /site:WebMVCLI
+		
+
+	(3) 語法介紹
+		[1] >iisexpress /?
+			Help說明
+			------------------------------------
+			C:\Program Files (x86)\IIS Express>iisexpress /?
+			------------------------------------
+			
+		[2] >appcmd.exe list site
+			查詢[applicationhost.config]站台設定名稱
+			------------------------------------
+			C:\Program Files (x86)\IIS Express>appcmd.exe list site
+				SITE "WebSite1" (id:1,bindings:http/:8080:localhost,state:Unknown)
+				SITE "WebMVCLI" (id:2,bindings:http/:51186:localhost,state:Unknown)
+			------------------------------------
+			
+		[3] >iisexpress /site:WebMVCLI
+			執行 IIS Express 站台
+			------------------------------------
+			C:\Program Files (x86)\IIS Express>iisexpress /site:WebMVCLI
+				Starting IIS Express ...
+				Successfully registered URL "http://localhost:51186/" for site "WebMVCLI" application "/"
+				Registration completed for site "WebMVCLI"
+				IIS Express is running.
+				Enter 'Q' to stop IIS Express
+				Could not open file mapping object (2).
+			------------------------------------
+
+  ● 可以成功看到網頁了
+	http://localhost:51185/
