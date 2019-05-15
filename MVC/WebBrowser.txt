@@ -1,0 +1,77 @@
+(1)
+using System.Threading;
+using System.Web.Mvc;
+using System.Windows.Forms;
+
+namespace MvcTest.Filter
+{
+    public class paramActionFilter : ActionFilterAttribute
+    {
+        private string result = "";
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            //(EX) public QaController QA4(string msg)
+            //filterContext.ActionParameters["msg"] = "123";
+            //string url = "http://localhost:64921/test/IeJs";
+            //WebRequest request = WebRequest.Create(url);
+            //request.Method = "GET";
+            //using (var httpResponse = (HttpWebResponse)request.GetResponse())
+            //{
+            //    using (var streamReder = new StreamReader(httpResponse.GetResponseStream()))
+            //    {
+            //        var result = streamReder.ReadToEnd();
+            //        //result.Dump();
+
+
+
+
+            //        string abc = "";
+            //        //HtmlDocument doc = new HtmlDocument(result)
+            //    }
+            //}
+
+            result = "";
+            Thread thread = new Thread(new ThreadStart(Work));
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+        }
+
+        protected void Work()
+        {
+            string url = "http://localhost:64921/test/IeJs2";
+            WebBrowser wb = new WebBrowser();
+            wb.Navigate(url);
+            int count = 0;
+            while (wb.ReadyState != WebBrowserReadyState.Complete && count <= 30)
+            {
+                Application.DoEvents();
+                count += 1;
+                Thread.Sleep(1000);
+            }
+            if (wb.ReadyState == WebBrowserReadyState.Complete)
+            {
+                result = wb.Document.GetElementById("p_result").InnerHtml;
+            }
+        }
+    }
+}
+
+
+(2)
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<body>
+    <p id="p_result"></p>
+
+    <!--[if lte IE 8]>
+    <script type="text/javascript">
+        document.getElementById("p_result").innerHTML = "IE8";
+    </script>
+    <![endif]-->
+
+</body>
+</html>
