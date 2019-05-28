@@ -1,0 +1,59 @@
+PostForm + AjaxForm
+
+(1) 
+using System.Web.Mvc;
+    public class DefaultController : Controller
+    {
+        [HttpPost]
+        public ActionResult Index(IndexViewModel model)
+        {
+            var result = new XXXXResult();
+            result.Success = true;
+            if (model.isValid()
+            {...}
+            else
+            {...}
+            return Json(result);
+        }
+    }
+
+
+(2)
+@model XXXX.Models.ViewModels.IndexViewModel
+        @using (Html.BeginForm("index", "Default", FormMethod.Post, new
+        { area = "abc", autocomplete = "off",  id = "formId", @class = "vldfrm"
+        }))
+        {
+        ....
+        <a href="javascript:void(0)" class="submit" id="btnButton">送出資料<i></i></a>
+        }
+        
+        
+(3)
+<script type="text/javascript">
+    $(document).ready(function () {
+    
+        $("#formId").ajaxForm({
+            success: function (result) {
+                if (result.Success) {
+                   
+                }
+                else {
+                    
+                }
+            }
+        });
+        
+        @*執行*@
+        $("#btnButton").click(function () {
+            $("#formId").submit();
+        });
+    });
+</script>
+
+
+
+
+
+
+        
