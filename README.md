@@ -2,6 +2,7 @@ https://help.github.com/en/articles/basic-writing-and-formatting-syntax
 
 # Doc
 - <a href="https://github.com/ayyday/Help/blob/master/Doc/VsQa.txt">MicrosoftVisual Studio遇到問題</a></li>
+- <a href="https://github.com/ayyday/Help/blob/master/Doc/GitCommit.txt">Git Commit 指令</a></li>
 
 # MVC
 - <a href="https://github.com/ayyday/Help/blob/master/MVC/PostAjaxForm.txt">Post Ajax Form</a>
