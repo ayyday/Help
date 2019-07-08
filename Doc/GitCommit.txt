@@ -1,0 +1,39 @@
+● Git相關安裝軟體
+1. Visual Studio 2017
+2. Git-2.17.1.1-64-bit.exe
+3. TortoiseGir-2.6.0.0-64bit.msi
+
+PS. 簽入需執行 = 簽入(1) +  簽入(2) 
+● 從伺服器上取得 Repository : Git Clone [http://127.0.0.1:8088/Bonobo.Git.Server/API.git] [目錄名稱]
+● 簽入(1) 簽入: $ git commit [簽入訊息]
+● 簽入(2) 推送版本 : $ git push
+● 取得版本 : $ git pull
+● 撤銷本地分支的上一次git commit : $ git reset --hard HEAD
+● 目前異動清單 : $ git status
+● 檢視記錄(單行 10筆資料) : $ git log --oneline -10
+
+
+
+
+************************* branch *************************
+● 顯示分支清單 : $ git branch
+  - 加上 -r 參數，將顯示遠端分支。
+ - 加上 -a 參數，可以顯示遠端與本地端的分支。
+
+● 建立 : $ git branch -c <branchname>
+
+● 修改 : $ git branch -m <oldbranch> <newbranch>
+
+● 刪除 : $ git branch -d <branchname>
+
+● 切換分支 : $ git checkout <branch>
+
+● 合併分支 : $ git merge <branch>
+加上 --no-ff 參數，將建立合併提交，而不是使用 fast-forward 合併。這可以保留分支合併的紀錄，是個非常有用的參數。
+
+切換目錄至需合併的<A Branch>下，執行指令 $ git merge <B Branch>
+表示將<B Branch>簽入記錄，合併至<A Branch>底下
+
+● 取得已有的分支，建立至本機中 : git checkout -b [Shared] remotes/origin/[Shared]
+
+
