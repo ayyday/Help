@@ -1,3 +1,29 @@
+
+************************* 參考 *************************
+● Git 情境劇
+https://blog.gogojimmy.net/2012/02/29/git-scenario/
+
+● 連猴子都能懂的Git入門指南
+https://backlog.com/git-tutorial/tw/
+
+● [2013 iT 邦幫忙鐵人賽] 30天精通Git版本控管
+https://ithelp.ithome.com.tw/users/20004901/ironman/525
+
+● [為你自己學 Git]
+【狀況題】剛才的 Commit 後悔了，想要拆掉重做…
+https://gitbook.tw/chapters/using-git/reset-commit.html
+合併分支
+https://gitbook.tw/chapters/branch/merge-branch.html
+
+● 透過rebase -i, reset, revert還原某個commit的方法
+http://rubyist.marsz.tw/blog/2012-01-17/git-reset-and-revert-to-rollback-commit/
+
+● Git 
+3.2 使用 Git 分支 - 分支和合併的基本用法
+https://git-scm.com/book/zh-tw/v2/%E4%BD%BF%E7%94%A8-Git-%E5%88%86%E6%94%AF-%E5%88%86%E6%94%AF%E5%92%8C%E5%90%88%E4%BD%B5%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95
+
+
+************************* 參考 *************************
 ● Git相關安裝軟體
 1. Visual Studio 2017
 2. Git-2.17.1.1-64-bit.exe
@@ -35,5 +61,10 @@ PS. 簽入需執行 = 簽入(1) +  簽入(2)
 表示將<B Branch>簽入記錄，合併至<A Branch>底下
 
 ● 取得已有的分支，建立至本機中 : git checkout -b [Shared] remotes/origin/[Shared]
+
+
+
+
+
 
 
