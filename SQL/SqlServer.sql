@@ -1,7 +1,48 @@
-use [DB_NAME]
+use [DbName]
+
+
+SELECT col.* ,obj.*
+from sys.objects obj 
+inner join sys.columns col 
+on obj.object_Id=col.object_Id 
+and obj.Name='[TableName]'
+
+
+SELECT obj.*
+from sys.objects obj 
+where obj.Name='[TableName]'
+
+--upd Column
+ALTER TABLE [dbo].[TableName] ALTER COLUMN [ColName] nvarchar(300) NULL
+
+--add Column
+ALTER TABLE [dbo].[TableName] ADD [ColName] varchar(1) NULL
+
+
+
+--刪除主索引鍵 : https://docs.microsoft.com/zh-tw/sql/relational-databases/tables/delete-primary-keys?view=sql-server-2017
+USE [DCAB_WebAPI]
+GO
+-- Return the name of primary key.  
+SELECT name  
+FROM sys.key_constraints  
+WHERE type = 'PK' AND OBJECT_NAME(parent_object_id) = N'[TableName]';  
+
+-- Delete the primary key constraint.  
+ALTER TABLE [dbo].[TableName]
+DROP CONSTRAINT [PK_Name] --PK Name = PK_TableName
+GO 
+
+
+--full join
+select *
+from (select 'A' as k, '1' as v) a
+full join (select 'A' as k, '2' as v) b on a.k = b.k
+full join (select 'B' as k, '3' as v) c on a.k = c.k
+
 
 --==================== WITH(NOLOCK) =============================
-select * from [TABLE_NAME] WITH(NOLOCK)
+select * from [dbo].[TableName] WITH(NOLOCK)
 
 --====================  convert  =============================
 declare @Date datetime
@@ -18,6 +59,7 @@ select FORMAT(GETDATE(),'yyyyMMddHHmmss') BindTime
      , FORMAT(GETDATE(),'yyyy/MM/dd HH:mm:ss') BindTime2
      , FORMAT(GETDATE(),'yy/MM/dd HH:mm:ss') BindTime3
 
+
 select 'a' + char(13) + char(10) + 'b'
 
 select Isnull(a, 0)
@@ -25,9 +67,24 @@ from (
 	select NULL as a
 ) b
 
+
 select convert(int, '123') + 5000 as ConvertInt
 select cast('123' as int) + 5000 as ConvertInt
 
+
+--時間相間取分鐘
+declare @GLSendTime DateTime  = convert(datetime, '2019/05/31 13:39:59', 111)
+declare @CurDateTime DateTime  = getdate()
+select @GLSendTime as GLSendTime
+, @CurDateTime as CurDateTime
+, DATEDIFF(mi, isnull(@GLSendTime, getdate()),@CurDateTime) AS GLdiffTime
+
+--DateTime add Day, Month, Year
+--https://docs.microsoft.com/zh-tw/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-2017
+select getdate()
+, DATEADD(DAY, 1, getdate()) as addDay, DATEADD(DAY, -1, getdate()) as deDay
+, DATEADD(MONTH, 1, getdate()) as addMon, DATEADD(MONTH, -1, getdate()) as deMon
+, DATEADD(YEAR, 1, getdate()) as addYear, DATEADD(YEAR, -1, getdate()) as deYear
 --======================  換行  ===========================
 /*
 https://www.cnblogs.com/xiaotiannet/p/3510586.html
@@ -43,6 +100,10 @@ select 'a' + char(13) + char(10) + 'b'
 select 'c' + char(13) + 'd'
 select 'e' + char(10) + 'f'
 
+select ASCII('''')
+select char(ASCII(''''))
+
+
 --====================== 多行合併為一行  ===========================
 declare @Text varchar(2000)
 set @Text = ''
@@ -54,12 +115,112 @@ from (
 ) d
 select @Text as col
 
---======================  sequences  ===========================
---[SEQUENCE_NAME] 設定於 DB->可程式性->順序
+--======================  sequences + 補長度  ===========================
 select s.name, s.increment, s.minimum_value, s.maximum_value, s.is_cached, s.is_cycling, s.current_value from sys.sequences s
 
---取得序號，且加自訂編碼方式
-select FORMAT(GETDATE(), 'yyMMdd') + RIGHT( REPLICATE('0',3) + CAST(NEXT VALUE FOR [SEQUENCE_NAME] AS VARCHAR(3)), 3)
+-- 遞增順序：DB/可程式性/順序/(SEQUENCE)[SeqName]
+select FORMAT(GETDATE(), 'yyMMdd') + RIGHT( REPLICATE('0',3) + CAST(NEXT VALUE FOR [SeqName] AS VARCHAR(3)), 3)
+
+select s.name, s.increment, s.minimum_value, s.maximum_value, s.is_cached, s.is_cycling, s.current_value from sys.sequences s
+
+
+--補長度
+declare @tempSeq varchar(30)
+declare @totLen int = 5
+select REPLICATE('0',@totLen)
+select @tempSeq = REPLICATE('0',@totLen) + 'abc'
+select @tempSeq
+select RIGHT(@tempSeq, @totLen) 
+
+
+--======================  in (string)  ===========================
+with d as (
+	select 'S' as result, 'S' status
+	union
+	select 'S' as result, 'P' status
+	union
+	select 'F' as result, 'W' status
+	union
+	select 'F' as result, 'A' status
+	union
+	select 'S' as result, 'E' status
+	union
+	select 'F' as result, 'E' status
+),
+v as (
+	select 'S' as code, '''S'',''P''' as CodeVal2
+	union
+	select 'F' as code, '''W'',''A''' as CodeVal2
+)
+select *
+from d
+left join v on d.result = v.code and v.CodeVal2 like '%''' + d.status + '''%' 
+
+
+--====================  With table & row_number  =============================
+--(1) [Server 2017] https://docs.microsoft.com/zh-tw/sql/t-sql/functions/string-split-transact-sql?view=sql-server-2017
+/*
+DECLARE @tags NVARCHAR(400) = 'clothing,road,,touring,bike'  
+  
+SELECT value  
+FROM STRING_SPLIT(@tags, ',')  
+WHERE RTRIM(value) <> '';
+*/
+
+--(2) https://stackoverflow.com/questions/10914576/t-sql-split-string
+/*
+CREATE FUNCTION dbo.splitstring ( @stringToSplit VARCHAR(MAX) )
+RETURNS
+ @returnList TABLE ([Name] [nvarchar] (500))
+AS
+BEGIN
+
+ DECLARE @name NVARCHAR(255)
+ DECLARE @pos INT
+
+ WHILE CHARINDEX(',', @stringToSplit) > 0
+ BEGIN
+  SELECT @pos  = CHARINDEX(',', @stringToSplit)  
+  SELECT @name = SUBSTRING(@stringToSplit, 1, @pos-1)
+
+  INSERT INTO @returnList 
+  SELECT @name
+
+  SELECT @stringToSplit = SUBSTRING(@stringToSplit, @pos+1, LEN(@stringToSplit)-@pos)
+ END
+
+ INSERT INTO @returnList
+ SELECT @stringToSplit
+
+ RETURN
+END
+
+SELECT * FROM dbo.splitstring('91,12,65,78,56,789')
+*/
+
+
+
+DECLARE @stringToSplit VARCHAR(MAX) = '1,91,12,65,78,56,789'
+DECLARE @returnList TABLE ([Name] [nvarchar] (500))
+
+ DECLARE @name NVARCHAR(255)
+ DECLARE @pos INT
+
+ WHILE CHARINDEX(',', @stringToSplit) > 0
+ BEGIN
+  SELECT @pos  = CHARINDEX(',', @stringToSplit)  
+  SELECT @name = SUBSTRING(@stringToSplit, 1, @pos-1)
+
+  INSERT INTO @returnList 
+  SELECT @name
+
+  SELECT @stringToSplit = SUBSTRING(@stringToSplit, @pos+1, LEN(@stringToSplit)-@pos)
+ END
+
+ INSERT INTO @returnList
+ SELECT @stringToSplit
+
+select * from @returnList
 
 --====================  With table & row_number  =============================
 with t1 as (select 1 as idx, 'a1' A union all
@@ -158,3 +319,52 @@ WHEN MATCHED THEN
 WHEN NOT MATCHED THEN
 		INSERT  (Seq, Name, editTime)
 		VALUES  (t2.Seq, t2.Name, GETDATE());
+
+
+/*
+UPDATE books
+SET    books.primary_author = authors.name
+FROM   books
+INNER JOIN  authors ON books.author_id = authors.id
+WHERE books.title = 'The Hobbit'
+
+MERGE INTO books
+USING authors
+ON  books.author_id = authors.id
+WHEN MATCHED THEN
+	UPDATE SET books.primary_author = authors.name
+WHEN NOT MATCHED THEN
+	INSERT (books.author_id, books.primary_author)
+	VALUES (authors.id, authors.name)
+
+--https://dotblogs.com.tw/dc690216/2010/01/25/13313
+--將兩張表 MERGE
+--當兩張表有資料 MERGE 時，且 庫存量 加上 進退貨量 等於零時，則刪除資料
+--當兩張表有資料 MERGE 時，將 庫存量 加上 進退貨量 更新到 庫存量
+--當兩張表沒有資料 MERGE 時，將 進退貨倉庫 的資料新增到 大倉庫 中
+MERGE INTO 大倉庫
+   USING 進退貨倉庫
+   ON 大倉庫.品名 = 進退貨倉庫.品名
+WHEN MATCHED AND (大倉庫.庫存量 + 進退貨倉庫.進退貨量 = 0) THEN
+   DELETE
+WHEN MATCHED THEN
+   UPDATE SET 大倉庫.庫存量 = 大倉庫.庫存量 + 進退貨倉庫.進退貨量
+WHEN NOT MATCHED THEN
+   INSERT VALUES(進退貨倉庫.品名, 進退貨倉庫.進退貨量);
+
+--查詢 MERGE 後的結果
+Select * From dbo.大倉庫
+Select * From dbo.進退貨倉庫
+*/
+
+
+--===========================================================
+--Sleep Command in T-SQL
+--https://stackoverflow.com/questions/664902/sleep-command-in-t-sql
+--===========================================================
+select GETDATE()
+-- wait for 1 minute
+WAITFOR DELAY '00:20' select GETDATE()
+-- wait for 1 second
+WAITFOR DELAY '00:00:01'
+select GETDATE()
