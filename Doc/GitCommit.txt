@@ -62,6 +62,7 @@ PS. 簽入需執行 = 簽入(1) +  簽入(2)
 
 ● 取得已有的分支，建立至本機中 : git checkout -b [Shared] remotes/origin/[Shared]
 
+● 指令來回到合併之前的狀態 git reset --merge 
 
 
 
