@@ -5,7 +5,7 @@ Google Chrome -> 更多工具->擴充功能->talend api tester
 
 ★ Talend API Tester - Free Edition
 【METHOD】
-POST	http://10.20.241.10:8081/GL/RequestObj
+POST	http://127.0.0.1:999/API/RequestObj
 
 
 【HEADERS】
@@ -14,26 +14,9 @@ Content-Type	application/json
 【BODY】
 {
   "Command": null,
-  "MsgId": "GL110",
+  "MsgId": "ABC",
   "Param": {
-    "CTF_A_TXN_LEN": "0099",
-    "CTF_A_TXN_ID_CODE": "GL110",
-    "CTF_A_HOST_SEQ_NO": "0080099",
-    "CTF_ACC_ID_NO": "0000019500656921",
-    "CTF_A_TXN_CHANNEL": "GL",
-    "CTF_A_STAN_NO": "1030080099",
-    "CTF_A_TXN_DATE": "20190618",
-    "CTF_A_TXN_TIME": "110200",
-    "CTF_A_TERM_ID": "MB882831",
-    "CTF_A_BUSI_DATE": "20190618",
-    "CTF_A_ATMP_MODE": "0",
-    "CTF_A_FISC_MODE": "0",
-    "CTF_A_RTN_CODE": "    ",
-    "CTF_A_SEND_BANK": "1030000",
-    "CTF_A_RECV_BANK": "1030000",
-    "FILLER": "  ",
-    "SemicolonSeparatedData": null,
-    "CTF_CURR_CODE": "TWD"
+    "TXN_LEN": "0099",
   }
 }
 
