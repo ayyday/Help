@@ -19,3 +19,7 @@ https://help.github.com/en/articles/basic-writing-and-formatting-syntax
 - <a href="https://github.com/ayyday/Help/tree/master/dotnet/WinowForm">Winow Form</a>
   * FileDialog.cs : 選擇目錄Directory(FolderBrowserDialog)&選擇檔案(OpenFileDialog)&檔案讀取及寫入
 - <a href="https://github.com/ayyday/Help/tree/master/dotnet/build">msbuild建置與執行IIS Express</a>
+
+
+# Tester
+- <a href="https://github.com/ayyday/Help/blob/master/Tester/ChromeTalendApiTester.txt">Chrome API 測試套件</a>
